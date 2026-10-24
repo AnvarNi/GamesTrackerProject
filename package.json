@@ -1,0 +1,36 @@
+{
+  "name": "gamestrackerproject",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "bun check",
+    "dev:client": "vite",
+    "dev:server": "bun --watch src/server/index.ts",
+    "dev": "concurrently -n server, client -c magenta,cyan \"bun run dev:server\" \"bun run dev:client\"",
+    "build:client": "vite build"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/bun": "latest",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "concurrently": "^10.0.6",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  },
+  "dependencies": {
+    "@elysiajs/cookie": "^0.8.0",
+    "@elysiajs/jwt": "^1.4.2",
+    "clsx": "^2.1.1",
+    "dotenv": "^18.0.8",
+    "drizzle-orm": "^0.45.4",
+    "elysia": "^1.4.30",
+    "postgres": "^3.4.9",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tailwindcss": "^4.3.3"
+  }
+}

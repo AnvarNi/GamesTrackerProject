@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+@theme {
+    --color-dark: #060e18;
+    --color-gray: #424242;
+    --color-accent: #fbbf24;
+
+}
+
+:root {
+    --font-sans: "DotGothic16", sans-serif;
+    --font-serif: "Cormorant Garamond", serif;
+}
+
+body {
+    @apply font-serif text-white;
+}
+
+button {
+    @apply cursor-pointer;
+}

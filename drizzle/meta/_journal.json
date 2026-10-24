@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792431493677,
+      "tag": "0000_panoramic_lord_tyger",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792693360445,
+      "tag": "0001_wise_vulture",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792779691210,
+      "tag": "0002_familiar_wiccan",
+      "breakpoints": true
+    }
+  ]
+}
