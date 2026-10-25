@@ -1,27 +1,21 @@
-import jwt from '@elysiajs/jwt'
-import Elysia from 'elysia'
+import { t } from 'elysia'
 
-export const auth = new Elysia({ name: 'auth' }).use(
-  jwt({
-    name: 'jwt',
-    secret: process.env.JWT_SECRET!
-  }).derive(async ({ jwt, cookie }) => {
-    if (!cookie.token) {
-      throw new Error('Not authenticated')
-    }
+export const authGuard = {
+  cookie: t.Object({
+    accessToken: t.Optional(t.String())
+  }),
 
-    const token = cookie.token.value as string | undefined
+  async beforeHandle(ctx: any) {
+    const token = ctx.cookie?.accessToken?.value
 
     if (!token) {
-      throw new Error('Token is empty or invalid format')
+      return ctx.status(401)
     }
 
-    const payload = await jwt.verify(token)
+    const payload = await ctx.jwt.verify(token)
 
     if (!payload) {
-      throw new Error('Invalid token')
+      return ctx.status(403)
     }
-
-    return { adminId: payload.id }
-  })
-)
+  }
+}

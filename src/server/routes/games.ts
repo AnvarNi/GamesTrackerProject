@@ -1,18 +1,25 @@
+import jwt from '@elysiajs/jwt'
 import { db } from '@server/db/client'
-import { games } from '@server/db/schema'
-import { auth } from '@server/middleware/auth'
+import { games, genres } from '@server/db/schema'
+import { authGuard } from '@server/middleware/auth'
 import { and, desc, eq, ilike } from 'drizzle-orm'
 import Elysia, { t } from 'elysia'
 
-export const gamesRoutes = new Elysia({ prefix: '/api/games' })
+export const gameRoutes = new Elysia({ prefix: '/api/games' })
   .get(
     '/',
     async ({ query }) => {
       const conditions = []
 
-      if (query.genreId) {
-        conditions.push(eq(games.genreId, Number(query.genreId)))
+      if (query.genreSlug) {
+        const genre = await db.query.genres.findFirst({
+          where: eq(genres.slug, query.genreSlug)
+        })
+        if (genre?.id) {
+          conditions.push(eq(games.genreId, genre.id))
+        }
       }
+
       if (query.search) {
         conditions.push(ilike(games.title, `%${query.search}%`))
       }
@@ -25,7 +32,7 @@ export const gamesRoutes = new Elysia({ prefix: '/api/games' })
     },
     {
       query: t.Object({
-        genreId: t.Optional(t.String()),
+        genreSlug: t.Optional(t.String()),
         search: t.Optional(t.String())
       })
     }
@@ -44,16 +51,81 @@ export const gamesRoutes = new Elysia({ prefix: '/api/games' })
     return game
   })
 
-  .use(auth)
+  .use(
+    jwt({
+      name: 'jwt',
+      secret: process.env.JWT_SECRET!
+    })
+  )
+
+  .guard(authGuard, app =>
+    app.post(
+      '/',
+      async ({ body, set }) => {
+        const { genreSlug, ...game } = body
+        const genre = await db.query.genres.findFirst({
+          where: eq(genres.slug, genreSlug)
+        })
+
+        if (!genre) {
+          set.status = 400
+          return { message: 'Genre not found' }
+        }
+
+        const [created] = await db
+          .insert(games)
+          .values({
+            ...game,
+            genreId: genre.id,
+            completedAt: new Date(game.completedAt)
+          })
+          .returning()
+        return created
+      },
+      {
+        body: t.Object({
+          externalId: t.String(),
+          title: t.String(),
+          slug: t.String(),
+          posterUrl: t.Optional(t.String()),
+          metaScore: t.Optional(t.Number()),
+          myScore: t.Number(),
+          review: t.Optional(t.String()),
+          platform: t.Union(
+            [
+              t.Literal('PC'),
+              t.Literal('PlayStation'),
+              t.Literal('XBOX'),
+              t.Literal('Mobile')
+            ],
+            { default: 'PC' }
+          ),
+          genreSlug: t.String(),
+          completedAt: t.String({ format: 'date-time' })
+        })
+      }
+    )
+  )
 
   .post(
     '/',
-    async ({ body }) => {
+    async ({ body, set }) => {
+      const { genreSlug, ...game } = body
+      const genre = await db.query.genres.findFirst({
+        where: eq(genres.slug, genreSlug)
+      })
+
+      if (!genre) {
+        set.status = 400
+        return { message: 'Genre not found' }
+      }
+
       const [created] = await db
         .insert(games)
         .values({
-          ...body,
-          completedAt: new Date(body.completedAt)
+          ...game,
+          genreId: genre.id,
+          completedAt: new Date(game.completedAt)
         })
         .returning()
       return created
@@ -67,14 +139,29 @@ export const gamesRoutes = new Elysia({ prefix: '/api/games' })
         metaScore: t.Optional(t.Number()),
         myScore: t.Number(),
         review: t.Optional(t.String()),
-        platform: t.Union([
-          t.Literal('PC'),
-          t.Literal('PlayStation'),
-          t.Literal('XBOX'),
-          t.Literal('Mobile')
-        ], { default: 'PC' }),
-        genreId: t.Number(),
+        platform: t.Union(
+          [
+            t.Literal('PC'),
+            t.Literal('PlayStation'),
+            t.Literal('XBOX'),
+            t.Literal('Mobile')
+          ],
+          { default: 'PC' }
+        ),
+        genreSlug: t.String(),
         completedAt: t.String({ format: 'date-time' })
       })
     }
   )
+  .delete('/:id', async ({ params, set }) => {
+    const id = Number(params.id)
+
+    if (Number.isNaN(id)) {
+      set.status = 400
+      return { message: 'Invalid id' }
+    }
+
+    await db.delete(games).where(eq(games.id, id))
+
+    return { success: true }
+  })

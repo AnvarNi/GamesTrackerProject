@@ -48,6 +48,13 @@ export const games = pgTable('games', {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 })
 
+export const gamesRelations = relations(games, ({ one }) => ({
+  genre: one(genres, {
+    fields: [games.genreId],
+    references: [genres.id]
+  })
+}))
+
 export const admins = pgTable('admins', {
   id: serial('id').primaryKey(),
   username: text('username').notNull().unique(),
