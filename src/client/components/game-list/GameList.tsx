@@ -8,7 +8,7 @@ interface Props {
 
 export function GameList({ games, isLoading }: Props) {
   return (
-    <div className='grid grid-cols-4 gap-5'>
+    <div className='grid grid-cols-4 gap-5 mt-12'>
       {isLoading ? (
         <SkeletonLoader count={8} />
       ) : (

@@ -5,15 +5,23 @@ import Elysia, { t } from 'elysia'
 const RAWG_URL = 'https://api.rawg.io/api'
 const RAWG_KEY = process.env.RAWG_API_KEY!
 
+const PC_ID = 4
+
 export const rawgRoutes = new Elysia({ prefix: '/api/rawg' })
   .use(jwt({ name: 'jwt', secret: process.env.RAWG_API_KEY! }))
   .guard(authGuard, app =>
     app.get(
       '/search',
       async ({ query }) => {
-        const res = await fetch(
-          `${RAWG_URL}/games?key=${RAWG_KEY}&search=${query.q}&page_size=10`
-        )
+        const url = new URL(`${RAWG_URL}/games`)
+
+        url.searchParams.set('key', RAWG_KEY)
+        url.searchParams.set('search', query.q)
+        url.searchParams.set('page_size', '10')
+        url.searchParams.set('platforms', `${PC_ID}`)
+
+        const res = await fetch(url.toString())
+
         return res.json()
       },
       {

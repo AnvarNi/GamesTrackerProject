@@ -3,9 +3,8 @@ import { Logo } from './Logo'
 
 export function Header() {
   return (
-    <header className='mt-6'>
+    <header className='mt-10'>
       <Logo />
-      <FiltersMenu />
     </header>
   )
 }

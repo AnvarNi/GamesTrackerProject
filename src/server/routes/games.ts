@@ -154,9 +154,9 @@ export const gameRoutes = new Elysia({ prefix: '/api/games' })
     }
   )
   .delete('/:id', async ({ params, set }) => {
-    const id = Number(params.id)
+    const id = params.id
 
-    if (Number.isNaN(id)) {
+    if (!id) {
       set.status = 400
       return { message: 'Invalid id' }
     }

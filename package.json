@@ -8,7 +8,8 @@
     "dev:client": "vite",
     "dev:server": "bun --watch src/server/index.ts",
     "dev": "concurrently -n server, client -c magenta,cyan \"bun run dev:server\" \"bun run dev:client\"",
-    "build:client": "vite build"
+    "build:client": "vite build",
+    "db:seed": "bun src/server/db/seed.ts"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "@elysiajs/jwt": "^1.4.2",
+    "@paralleldrive/cuid2": "^3.3.0",
     "@tanstack/react-query": "^5.104.5",
     "axios": "^1.20.0",
     "clsx": "^2.1.1",
@@ -33,6 +35,9 @@
     "postgres": "^3.4.9",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-hook-form": "^7.91.0",
+    "react-router-dom": "^7.18.4",
+    "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4.3.3"
   }

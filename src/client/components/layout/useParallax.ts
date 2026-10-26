@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react'
 
+const DEAD_ZONE = 0.3
+
+const AMPLITUDE = 15
+
 export function useParallax() {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -11,10 +15,24 @@ export function useParallax() {
     let mouseY = 0
     let currentX = 0
     let currentY = 0
+    
+    const applyDeadZone = (value: number) => {
+      const abs = Math.abs(value)
+
+      if (abs < DEAD_ZONE) return 0
+
+      const sign = Math.sign(value)
+      const normalized = (abs - DEAD_ZONE) / (1 - DEAD_ZONE)
+
+      return sign * normalized
+    }
 
     const handleMove = (e: MouseEvent) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 25
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 25
+      const normalizedX = (e.clientX / window.innerWidth) * 2 - 1
+      const normalizedY = (e.clientY / window.innerHeight) * 2 - 1
+
+      mouseX = applyDeadZone(normalizedX) * AMPLITUDE
+      mouseY = applyDeadZone(normalizedY) * AMPLITUDE
     }
 
     const animate = () => {

@@ -1,9 +1,9 @@
+import { createId } from '@paralleldrive/cuid2'
 import { relations } from 'drizzle-orm'
 import {
   integer,
   pgEnum,
   pgTable,
-  serial,
   text,
   timestamp
 } from 'drizzle-orm/pg-core'
@@ -16,7 +16,7 @@ export const platformEnum = pgEnum('platform', [
 ])
 
 export const genres = pgTable('genres', {
-  id: serial('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => createId()),
 
   name: text('name').notNull().unique(),
   slug: text('slug').notNull().unique(),
@@ -26,7 +26,7 @@ export const genres = pgTable('genres', {
 })
 
 export const games = pgTable('games', {
-  id: serial('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => createId()),
   externalId: text('external_id').notNull().unique(),
 
   title: text('title').notNull(),
@@ -40,7 +40,7 @@ export const games = pgTable('games', {
 
   completedAt: timestamp('completed_at').notNull(),
 
-  genreId: integer('genre_id')
+  genreId: text('genre_id')
     .notNull()
     .references(() => genres.id, { onDelete: 'cascade' }),
 
@@ -56,7 +56,7 @@ export const gamesRelations = relations(games, ({ one }) => ({
 }))
 
 export const admins = pgTable('admins', {
-  id: serial('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => createId()),
   username: text('username').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
 

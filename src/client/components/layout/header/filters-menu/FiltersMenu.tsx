@@ -21,7 +21,12 @@ export function FiltersMenu() {
                     genre.slug.toString() === genreSlug
                 }
               )}
-              onClick={() => setGenreSlug(genre.slug.toString())}
+              onClick={() => {
+                if(genre.slug.toString() === genreSlug) {
+                  setGenreSlug(null)
+                  return
+                }
+                setGenreSlug(genre.slug.toString())}}
             >
               {genre.name}
             </button>
