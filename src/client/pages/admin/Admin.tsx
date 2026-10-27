@@ -8,22 +8,40 @@ import { is } from 'drizzle-orm'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import type { IRawgGame } from './login-form/rawg-game.types'
 
-type GameForm = Pick<TGame, 'myScore' | 'review' | 'genreId' | 'platform'> & {
+type GameForm = Pick<
+  TGame,
+  | 'myScore'
+  | 'review'
+  | 'genreId'
+  | 'platform'
+  | 'externalId'
+  | 'title'
+  | 'posterUrl'
+  | 'metaScore'
+  | 'slug'
+> & {
   completedAt: string
 }
 
 export function Admin() {
   const [search, setSearch] = useState('')
-  const [selected, setSelected] = useState<any>(null)
+  const [selected, setSelected] = useState<IRawgGame | null>(null)
 
   const debouncedSearch = useDebounce(search)
+
+  const { register, handleSubmit, reset, setValue } = useForm<GameForm>({
+    defaultValues: {
+      platform: 'PC'
+    }
+  })
 
   const { data: results = [] } = useQuery({
     queryKey: ['rawg-search', debouncedSearch],
     queryFn: async () => {
       if (!debouncedSearch) return []
-      const { data } = await api.get('/rawg/search', {
+      const { data } = await api.get<{ results: IRawgGame[] }>('/rawg/search', {
         params: { q: debouncedSearch }
       })
       return data.results || []
@@ -31,9 +49,11 @@ export function Admin() {
     enabled: !!debouncedSearch
   })
 
-  const handleSelect = (game: any) => {
+  const handleSelect = (game: IRawgGame) => {
     setSelected(game)
     setSearch('')
+    setValue('metaScore', game.metacritic ?? null)
+    setValue('completedAt', new Date().toISOString().slice(0, 10))
   }
 
   const { data: genres = [] } = useGenres()
@@ -41,18 +61,12 @@ export function Admin() {
   const queryClient = useQueryClient()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: any) => api.post('/games', data),
+    mutationFn: (data: GameForm) => api.post('/games', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['games'] })
       setSelected(null)
       reset()
       toast.success('Игра успешно добавлена!')
-    }
-  })
-
-  const { register, handleSubmit, reset } = useForm<GameForm>({
-    defaultValues: {
-      platform: 'PC'
     }
   })
 
@@ -64,8 +78,8 @@ export function Admin() {
       title: selected.name,
       slug: selected.slug,
       posterUrl: selected.background_image,
-      metaScore: selected.metacritic,
-      myScore: Number(data.myScore),
+      metaScore: +(data.metaScore ?? 0),
+      myScore: +(data.myScore ?? 0),
       review: data.review,
       platform: data.platform,
       genreId: data.genreId,
@@ -75,7 +89,7 @@ export function Admin() {
 
   return (
     <div>
-      <div className='max-w-2xl mx-auto mt-10 space-y-5'>
+      <div className='max-w-2xl mx-auto mt-6 space-y-4'>
         <h1 className='text-3xl font-serif text-accent'>Добавить игру</h1>
         <div className='relative'>
           <input
@@ -110,30 +124,45 @@ export function Admin() {
       {selected && (
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className='space-y-4 bg-dark/50 p-4 rounded-lg border border-white/10'
+          className='space-y-5 bg-dark/50 p-6 rounded-lg border border-white/10 mt-7'
         >
-          <div className='flex gap-4'>
+          <div className='flex gap-5'>
             {selected.background_image && (
               <img
                 src={selected.background_image}
-                className='w-32 h-140 object-cover rounded'
+                className='w-55 h-65 object-cover rounded'
               />
             )}
             <div>
-              <h2 className='text-xl font-serif text-accent'>
+              <h2 className='text-3xl font-sans text-accent'>
                 {selected.name}
               </h2>
-              <p className='text-gray text-sm'>
+              <p className='text-white/50 text-lg mt-2 font-sans'>
+                Genres: {selected.genres.map(g => g.name).join(', ') || '—'}
+              </p>
+              <p className='text-white/50 text-lg font-sans'>
                 Metacritic: {selected.metacritic ?? '—'}
               </p>
             </div>
           </div>
 
+          {/* <select
+            {...register('platform', { required: true })}
+            className='w-full px-4 py-2 bg-dark/70 border border-white/10 rounded-lg text-white font-serif'
+          >
+            <option value=''>Выбери платформу</option>
+            {genres.map(g => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </select> */}
+
           <select
             {...register('genreId', { required: true })}
             className='w-full px-4 py-2 bg-dark/70 border border-white/10 rounded-lg text-white font-serif'
           >
-            <option value=''>Выберите жанр</option>
+            <option value=''>Выбери жанр</option>
             {genres.map(g => (
               <option key={g.id} value={g.id}>
                 {g.name}
@@ -144,7 +173,14 @@ export function Admin() {
           <input
             type='number'
             placeholder='Твоя оценка (1-10)'
-            {...register('myScore', { required: true, min: 1, max: 10 })}
+            {...register('myScore', { required: true, min: 1, max: 10, valueAsNumber: true })}
+            className='w-full px-4 py-2 bg-dark/70 border border-white/10 rounded-lg text-white placeholder:text-gray font-serif'
+          />
+
+          <input
+            type='number'
+            placeholder='Metacritic оценка'
+            {...register('metaScore', { required: true, min: 1, max: 100, valueAsNumber: true})}
             className='w-full px-4 py-2 bg-dark/70 border border-white/10 rounded-lg text-white placeholder:text-gray font-serif'
           />
 
@@ -162,8 +198,10 @@ export function Admin() {
             className='w-full px-4 py-2 bg-dark/70 border border-white/10 rounded-lg text-white placeholder:text-gray font-serif resize-none'
           />
 
-          <button disabled={isPending}
-            className='w-full px-4 py-2 bg-accent text-dark font-serif rounded-lg hover:bg-accent/80 transition-colors disabled:opacity-50'>
+          <button
+            disabled={isPending}
+            className='w-full px-4 py-2 bg-accent text-dark font-serif rounded-lg hover:bg-accent/80 transition-colors disabled:opacity-50 text-xl font-bold'
+          >
             {isPending ? 'Добавление...' : 'Добавить'}
           </button>
         </form>
