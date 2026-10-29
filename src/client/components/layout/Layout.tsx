@@ -21,7 +21,7 @@ export default function Layout({ children }: PropsWithChildren<unknown>) {
       <div className='absolute inset-0 bg-[radial-gradient(circle,transparent_50%,rgba(0,0,0,0.8)_100%)]' />
 
       <div className='relative z-10'>
-        <div className='container mx-auto max-w-6xl'>
+        <div className='container mx-auto max-w-450'>
           <Header />
           <div>{children}</div>
         </div>

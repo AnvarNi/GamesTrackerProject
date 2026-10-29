@@ -14,7 +14,7 @@ export function useGames({ genreSlug, searchTerm }: Props) {
       const params = new URLSearchParams()
 
       if (genreSlug) {
-        params.append('genre', genreSlug)
+        params.append('genreId', genreSlug)
       }
 
       if (searchTerm) {

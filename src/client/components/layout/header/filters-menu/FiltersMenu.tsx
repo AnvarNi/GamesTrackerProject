@@ -9,8 +9,8 @@ export function FiltersMenu() {
   const { data: genres = [], isLoading: isGenresLoading } = useGenres()
 
   return (
-    <nav className='max-w-5xl mx-auto'>
-      <ul className='flex items-center gap-12 justify-center'>
+    <nav>
+      <ul className='flex items-center gap-14 justify-center'>
         {isGenresLoading ? <SkeletonLoader count={5}/> : genres?.map(genre => (
           <li key={genre.slug}>
             <button

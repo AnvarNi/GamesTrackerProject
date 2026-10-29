@@ -11,9 +11,9 @@ export const gameRoutes = new Elysia({ prefix: '/api/games' })
     async ({ query }) => {
       const conditions = []
 
-      if (query.genreSlug) {
+      if (query.genreId) {
         const genre = await db.query.genres.findFirst({
-          where: eq(genres.slug, query.genreSlug)
+          where: eq(genres.slug, query.genreId)
         })
         if (genre?.id) {
           conditions.push(eq(games.genreId, genre.id))
@@ -32,7 +32,7 @@ export const gameRoutes = new Elysia({ prefix: '/api/games' })
     },
     {
       query: t.Object({
-        genreSlug: t.Optional(t.String()),
+        genreId: t.Optional(t.String()),
         search: t.Optional(t.String())
       })
     }
@@ -62,25 +62,21 @@ export const gameRoutes = new Elysia({ prefix: '/api/games' })
     app.post(
       '/',
       async ({ body, set }) => {
-        const { genreSlug, ...game } = body
-        const genre = await db.query.genres.findFirst({
-          where: eq(genres.slug, genreSlug)
-        })
+        try {
+          const [created] = await db
+            .insert(games)
+            .values({
+              ...body,
+              completedAt: new Date(body.completedAt)
+            })
+            .returning()
 
-        if (!genre) {
-          set.status = 400
-          return { message: 'Genre not found' }
+          return created
+        } catch (e: any) {
+          console.log('DB Error:', e.cause?.message || e.message)
+          set.status = 500
+          return { error: e.cause?.message || e.message }
         }
-
-        const [created] = await db
-          .insert(games)
-          .values({
-            ...game,
-            genreId: genre.id,
-            completedAt: new Date(game.completedAt)
-          })
-          .returning()
-        return created
       },
       {
         body: t.Object({
@@ -100,58 +96,11 @@ export const gameRoutes = new Elysia({ prefix: '/api/games' })
             ],
             { default: 'PC' }
           ),
-          genreSlug: t.String(),
+          genreId: t.String(),
           completedAt: t.String({ format: 'date-time' })
         })
       }
     )
-  )
-
-  .post(
-    '/',
-    async ({ body, set }) => {
-      const { genreSlug, ...game } = body
-      const genre = await db.query.genres.findFirst({
-        where: eq(genres.slug, genreSlug)
-      })
-
-      if (!genre) {
-        set.status = 400
-        return { message: 'Genre not found' }
-      }
-
-      const [created] = await db
-        .insert(games)
-        .values({
-          ...game,
-          genreId: genre.id,
-          completedAt: new Date(game.completedAt)
-        })
-        .returning()
-      return created
-    },
-    {
-      body: t.Object({
-        externalId: t.String(),
-        title: t.String(),
-        slug: t.String(),
-        posterUrl: t.Optional(t.String()),
-        metaScore: t.Optional(t.Number()),
-        myScore: t.Number(),
-        review: t.Optional(t.String()),
-        platform: t.Union(
-          [
-            t.Literal('PC'),
-            t.Literal('PlayStation'),
-            t.Literal('XBOX'),
-            t.Literal('Mobile')
-          ],
-          { default: 'PC' }
-        ),
-        genreSlug: t.String(),
-        completedAt: t.String({ format: 'date-time' })
-      })
-    }
   )
   .delete('/:id', async ({ params, set }) => {
     const id = params.id

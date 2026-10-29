@@ -18,7 +18,7 @@ export function SkeletonLoader({
         <div
           key={index}
           className={twMerge(
-            'bg-gray/80 mb-[0.65rem] h-10 animate-pulse rounded-lg last:mb-0',
+            'bg-gray/50 mb-[0.65rem] h-10 animate-pulse rounded-lg last:mb-0 border border-white/25',
             className
           )}
           style={style}
