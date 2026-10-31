@@ -19,8 +19,8 @@ export default function Home() {
   return (
     <div>
       <FiltersMenu />
-      <div className='mt-6 grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4'>
-        <div className='sm:col-start-2'>
+      <div className='justify-center mt-6'>
+        <div>
           <input
             type='text'
             placeholder='Search games I have completed...'
@@ -30,9 +30,10 @@ export default function Home() {
         rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:border-accent/50 font-serif text-2xl'
           />
         </div>
-        <div className='sm:col-start-3 sm:justify-self-end'>
-          <GameSortDropdown value={sortOption} onChange={setSortOption} />
-        </div>
+      </div>
+      
+      <div className='inline-block'>
+        <GameSortDropdown value={sortOption} onChange={setSortOption} />
       </div>
 
       <GameList games={sortedGames} isLoading={isGamesLoading} />

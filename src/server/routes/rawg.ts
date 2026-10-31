@@ -4,7 +4,6 @@ import Elysia, { t } from 'elysia'
 
 const RAWG_URL = 'https://api.rawg.io/api'
 const RAWG_KEY = process.env.RAWG_API_KEY!
-
 const PC_ID = 4
 
 export const rawgRoutes = new Elysia({ prefix: '/api/rawg' })

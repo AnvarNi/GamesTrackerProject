@@ -38,7 +38,7 @@ export function GameCard({ game }: Props) {
           <span className='text-white/50 font-serif text-lg'>Mc: </span>
           <span
             className={cn(
-              'text-accent font-bold font-serif text-xl',
+              'text-accent font-bold font-number text-lg',
               game.metaScore >= 61
                 ? 'text-green-500'
                 : game.metaScore >= 40
@@ -55,10 +55,10 @@ export function GameCard({ game }: Props) {
         className='absolute top-3 right-3 bg-dark/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-accent/30'
         title={`My Score: ${game.myScore} of 10`}
       >
-        <span className='text-accent font-bold font-serif text-2xl'>
+        <span className='text-accent font-bold font-number text-2xl'>
           {game.myScore}
         </span>
-        <span className='text-white/50 font-serif text-2xl'>/10</span>
+        <span className='text-white/50 font-number text-lg'>/10</span>
       </div>
 
       <div className='absolute bottom-0 left-0 right-0 p-4'>
