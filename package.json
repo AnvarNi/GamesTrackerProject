@@ -9,6 +9,11 @@
     "dev:server": "bun --watch src/server/index.ts",
     "dev": "concurrently -n server, client -c magenta,cyan \"bun run dev:server\" \"bun run dev:client\"",
     "build:client": "vite build",
+    "start:client": "vite preview",
+    "start:server": "bun src/server/index.ts",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
     "db:seed": "bun src/server/db/seed.ts"
   },
   "devDependencies": {

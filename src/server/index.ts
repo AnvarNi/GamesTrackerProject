@@ -11,6 +11,8 @@ app.use(genresRoutes)
 app.use(gameRoutes)
 app.use(rawgRoutes)
 
-app.listen(4200, () => {
-    console.log('Server is running on http://localhost:4200')
+const PORT = process.env.PORT || 4200
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`)
 })

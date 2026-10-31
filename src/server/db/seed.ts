@@ -15,7 +15,7 @@ const GENRES = [
 async function seed() {
   console.log('Seeding genres...')
 
-  // await db.insert(genres).values(GENRES).onConflictDoNothing()
+  await db.insert(genres).values(GENRES).onConflictDoNothing()
 
   await db
     .insert(admins)

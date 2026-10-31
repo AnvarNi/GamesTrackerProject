@@ -5,11 +5,9 @@
     --color-gray: #424242;
     --color-accent: #D2B48C;
 
-}
-
-:root {
     --font-sans: "DotGothic16", sans-serif;
     --font-serif: "Cormorant Garamond", serif;
+    --font-number: "Poppins", sans-serif;
 }
 
 body {
